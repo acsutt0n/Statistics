@@ -18,7 +18,6 @@ class label (-1 or 1).
 class LogitSynData():
   
   def __init__(self, N=20, d=5):
-    
     means = .25 * np.array([[-1] * (d-1), [1] * (d-1)])
     
     self.X_train = np.zeros((N, d))
@@ -29,6 +28,9 @@ class LogitSynData():
       else:
         y = 0
       self.X_train[i, 0] = 1
+      # Note, this time Tarlow does add a column of 1's to the X-data;
+      #   In the previous non-Bayesian code he omitted this and so there were
+      #   fewer betas than expected (no intercept beta)
       self.X_train[i, 1:] = np.random.random(d-1) + means[y, :]
       self.Y_train[i] = 2.0 * y - 1
     
@@ -53,7 +55,7 @@ class BayesLogitRegression():
 
   def __init__(self, x_train=None, y_train=None, x_test=None, y_test=None,
          alpha=.1, synthetic=False):
-    
+    self.failures = []
     # Set L2 regularization strength
     self.alpha = alpha
     
@@ -75,7 +77,7 @@ class BayesLogitRegression():
     # Data likelihood
     l = 0
     for i in range(self.n):
-      l += log(sigmoid(self.y_train[i] * \
+      l += np.log(sigmoid(self.y_train[i] * \
                np.dot(betas, self.x_train[i,:])))
     
     # Prior likelihood
@@ -100,6 +102,7 @@ class BayesLogitRegression():
     
     # Define the derivative of the likelihood with respect to beta_k.
     # Need to multiply by -1 because we will be minimizing.
+    # Note that intercept beta IS included in the fmin search!!
     dB_k = lambda B, k : (k > -1) * self.alpha * B[k] - np.sum([ \
                    self.y_train[i] * self.x_train[i, k] * \
                    sigmoid(-self.y_train[i] *\
@@ -139,16 +142,18 @@ class BayesLogitRegression():
       self.all_betas.append(self.betas.copy())
       
     if failures > 0:
-      print("Warning: %s root-finding failures" % (failures))
+      self.failures.append(
+            "Warning: %s root-finding failures" % (failures))
     
 
 
   def resample_beta_k(self, k):
-    """ Resample beta_k conditional upon all other settings of beta.
+    """ 
+    Resample beta_k conditional upon all other settings of beta.
     This can be used in the inner loop of a Gibbs sampler to get a
     full posterior over betas.
-
-    Uses slice sampling (Neal, 2001). """
+    Uses slice sampling (Neal, 2001). 
+    """
 
     #print "Resampling %s" % k
 
@@ -245,7 +250,7 @@ if __name__ == "__main__":
     plt.figure()
     
     # Create a new learner, but use the same data for each run
-    lr = LogisticRegression(x_train=data.X_train, y_train=data.Y_train,
+    lr = BayesLogitRegression(x_train=data.X_train, y_train=data.Y_train,
                 x_test=data.X_test, y_test=data.Y_test,
                 alpha=a)
     
@@ -290,9 +295,9 @@ if __name__ == "__main__":
     plt.figure()
     all_betas = np.array(lr.all_betas)
 
-    hexbin(all_betas[:,0], all_betas[:,1], bins='log')
+    plt.hexbin(all_betas[:,0], all_betas[:,1], bins='log')
     plt.plot([map_betas[0]], [map_betas[1]], 'rx', markersize=10)
-  show()
+  plt.show()
 
 
 
