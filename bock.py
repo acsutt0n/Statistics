@@ -113,6 +113,9 @@ def toy_model():
   
   
 
+##########################################################################
+# Testing stuff
+
 def px_(P, epp):
   # Calculate pX0 or pXA
   nE = P['lam']*P['n']
@@ -124,6 +127,7 @@ def px_(P, epp):
   epproot = epp*(2*(P['lam']**2) - 2*P['lam'] + 1)
   print('  For epp=%.3f, epproot=%.3f ' %(epp, epproot))
   return (1-epp) * ( in1 + in2 ) + epproot
+
 
 
 def beta_(P, epp):
@@ -150,8 +154,6 @@ def beta_(P, epp):
   print('PHI (%.3f / %.3f)' %(numerat, denom))
   return stats.norm.cdf(numerat/denom)
 
-
-def beta2(
 
 
 def g_(P, epp):
