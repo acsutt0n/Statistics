@@ -117,13 +117,13 @@ class LogitRegression():
     """
     # Set derivative of likelihood w.r.t. beta[k], -1 to minimize -log(likelihood)
     if self.d > 1:
-      dB_k = lambda B, k : (k > 0) * self.alpha * B[k] - \
+      dB_k = lambda B, k : (k > -1) * self.alpha * B[k] - \
                             np.sum([self.y_train[i] * self.x_train[i,k] * \
                             sigmoid(-self.y_train[i] * \
                                     np.dot(B, self.x_train[i,:]))
                             for i in range(self.n)])
     else:
-      dB_k = lambda B, k : (k > 0) * self.alpha * B[k] - \
+      dB_k = lambda B, k : (k > -1) * self.alpha * B[k] - \
                           np.sum([self.y_train[i] * self.x_train[i,] * \
                           sigmoid(-self.y_train[i] * \
                                   np.dot(B, self.x_train[i,]))
