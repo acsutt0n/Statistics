@@ -2,6 +2,7 @@
 The bulk of this content is taken from the sklearn example
 http://scikit-learn.org/stable/auto_examples/decomposition/plot_pca_vs_fa_model_selection.html
 I have added code and comments
+## Not finished yet ! ##
 """
 
 """
